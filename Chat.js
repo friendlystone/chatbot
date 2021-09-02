@@ -6,8 +6,8 @@ import {
 } from 'react-native';
 
 import { GiftedChat } from 'react-native-gifted-chat';
+import { auth } from './Fire'
 
-import Fire from './Fire'
 
 
 class Chat extends Component {
@@ -24,26 +24,36 @@ class Chat extends Component {
             name: this.props.navigation.state.params.name,
             _id: Fire.shared.uid,
         };
-    }
-
-    componentDidMount() {
-        Fire.shared.on(message =>
-          this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, message),
-          }))
-        );
-    }
-
-    componentWillUnmount() {
-        Fire.shared.off();
-    }
+    }   
+   
+    onSend = useCallback((messages = []) => {
+      setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+    }, [])
       
     render() {
+        const [messages, setMessages] = useState([]);
+        useEffect(() => {
+            setMessages([
+              {
+                _id: 1,
+                text: 'Hello developer',
+                createdAt: new Date(),
+                user: {
+                  _id: 2,
+                  name: 'React Native',
+                  avatar: 'https://placeimg.com/140/140/any',
+                },
+              },
+            ])
+          }, [])
+
         return (
             <GiftedChat
-                messages = {this.state.messages}
-                onSend = {Fire.shared.send}
-                user={this.user}
+                messages = { messages }
+                onSend = { messages => onSend(messages)}
+                user = {{
+                _id: 1,
+                }}
             />
           );
     }
